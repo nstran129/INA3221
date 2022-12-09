@@ -95,7 +95,7 @@ typedef enum {
     INA3221_REG_CONF_AVG_1024
 } ina3221_avg_mode_t;
 
-class Beastdevices_INA3221 {
+class INA3221 {
 
     // Configuration register
     typedef struct {
