@@ -32,12 +32,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-typedef enum {
-    INA3221_ADDR40_GND = 0b1000000, // A0 pin -> GND
-    INA3221_ADDR41_VCC = 0b1000001, // A0 pin -> VCC
-    INA3221_ADDR42_SDA = 0b1000010, // A0 pin -> SDA
-    INA3221_ADDR43_SCL = 0b1000011  // A0 pin -> SCL
-} ina3221_addr_t;
+#define DEV_ADDR 0x43 //device address of the INA3221
 
 // Channels
 typedef enum {
@@ -154,14 +149,13 @@ class INA3221 {
 
 public:
 	
-    INA3221();
+    //Device status
 	
-    bool init(TwoWire &wirePort = Wire);
-    bool begin(TwoWire &wirePort = Wire);
+    bool begin(uint8_t address = DEV_ADDR, TwoWire &wirePort = Wire);
 	
-    Beastdevices_INA3221(ina3221_addr_t addr) : _i2c_addr(addr) {};
+
     // Initializes INA3221
-    void begin(TwoWire *theWire = &Wire);
+    bool init(TwoWire &wirePort = Wire);
 
     // Sets shunt resistor value in mOhm
     void setShuntRes(uint32_t res_ch1, uint32_t res_ch2, uint32_t res_ch3);
