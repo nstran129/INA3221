@@ -153,7 +153,12 @@ class INA3221 {
     void _write(ina3221_reg_t reg, uint16_t *val);
 
 public:
-
+	
+    INA3221();
+	
+    bool init(TwoWire &wirePort = Wire);
+    bool begin(TwoWire &wirePort = Wire);
+	
     Beastdevices_INA3221(ina3221_addr_t addr) : _i2c_addr(addr) {};
     // Initializes INA3221
     void begin(TwoWire *theWire = &Wire);
