@@ -29,10 +29,13 @@
 #ifndef BEASTDEVICES_INA3221_H
 #define BEASTDEVICES_INA3221_H
 
-#include "Arduino.h"
-#include "Wire.h"
+#include <Wire.h>
+#include <Arduino.h>
 
-#define DEV_ADDR 0x43 //device address of the INA3221
+
+#define DID_VALUE 0x5449 // Value found in the device ID register on reset (page 24 Table 3 of datasheet) 
+
+const uint8_t INA3221_default_i2c_address = 0x40;
 
 // Channels
 typedef enum {
@@ -104,7 +107,7 @@ class INA3221 {
         uint16_t ch2_en:1;
         uint16_t ch1_en:1;
         uint16_t reset:1;
-    } conf_reg_t __attribute__((packed));
+    } __attribute__((packed)) conf_reg_t;
 
     // Mask/Enable register
     typedef struct {
@@ -124,13 +127,7 @@ class INA3221 {
         uint16_t shunt_sum_en_ch2:1;
         uint16_t shunt_sum_en_ch1:1;
         uint16_t reserved:1;
-    } masken_reg_t __attribute__((packed));
-
-    // Arduino's I2C library
-    TwoWire *_i2c;
-
-    // I2C address
-    ina3221_addr_t _i2c_addr;
+    } __attribute__((packed)) masken_reg_t;
 
     // Shunt resistance in mOhm
     uint32_t _shuntRes[INA3221_CH_NUM];
@@ -141,21 +138,19 @@ class INA3221 {
     // Value of Mask/Enable register.
     masken_reg_t _masken_reg;
 
+
+
+  public:
+	INA3221();
+
+	bool begin(uint8_t address = INA3221_default_i2c_address, TwoWire &wirePort = Wire);
+
+    void reset();
     // Reads 16 bytes from a register.
     void _read(ina3221_reg_t reg, uint16_t *val);
 
     // Writes 16 bytes to a register.
     void _write(ina3221_reg_t reg, uint16_t *val);
-
-public:
-	
-    //Device status
-	
-    bool begin(uint8_t address = DEV_ADDR, TwoWire &wirePort = Wire);
-	
-
-    // Initializes INA3221
-    bool init(TwoWire &wirePort = Wire);
 
     // Sets shunt resistor value in mOhm
     void setShuntRes(uint32_t res_ch1, uint32_t res_ch2, uint32_t res_ch3);
@@ -163,14 +158,9 @@ public:
     // Sets filter resistors value in Ohm
     void setFilterRes(uint32_t res_ch1, uint32_t res_ch2, uint32_t res_ch3);
 
-    // Sets I2C address of INA3221
-    void setAddr(ina3221_addr_t addr) { _i2c_addr = addr; }
-
     // Gets a register value.
     uint16_t getReg(ina3221_reg_t reg);
 
-    // Resets INA3221
-    void reset();
 
     // Sets operating mode to power-down
     void setModePowerDown();
@@ -286,7 +276,7 @@ public:
     void setCurrentSumDisable(ina3221_ch_t channel);
 
     // Gets shunt voltage in uV.
-    int32_t getShuntVoltage(ina3221_ch_t channel);
+    float getShuntVoltage(ina3221_ch_t channel);
 
     // Gets warning alert flag.
     bool getWarnAlertFlag(ina3221_ch_t channel);
@@ -305,6 +295,14 @@ public:
 
     // Gets bus voltage in V.
     float getVoltage(ina3221_ch_t channel);
+	
+  private:
+	//This stores the requested i2c port
+    TwoWire * _i2cPort = NULL;
+	
+	//This stores the i2c address
+    uint8_t _INA3221Address;
+	
 };
 
 #endif
